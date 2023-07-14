@@ -6,4 +6,5 @@ import com.wipro.retailStore.entity.Cart;
 
 public interface CartRepository extends JpaRepository<Cart, Integer>{
 
+	Cart findByCustId(long custId);
 }

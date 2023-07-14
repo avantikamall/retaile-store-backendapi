@@ -13,7 +13,7 @@ public class Inventory {
 	@Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int inventoryId;
-	private Long productId;
+	private int productId;
 	private int quantity;
 	
 	
@@ -23,10 +23,10 @@ public class Inventory {
 	public void setInventoryId(int inventoryId) {
 		this.inventoryId = inventoryId;
 	}
-	public Long getProductId() {
+	public int getProductId() {
 		return productId;
 	}
-	public void setProductId(Long productId) {
+	public void setProductId(int productId) {
 		this.productId = productId;
 	}
 	public int getQuantity() {
@@ -35,7 +35,7 @@ public class Inventory {
 	public void setQuantity(int quantity) {
 		this.quantity = quantity;
 	}
-	public Inventory(int inventoryId, Long productId, int quantity) {
+	public Inventory(int inventoryId, int productId, int quantity) {
 		super();
 		this.inventoryId = inventoryId;
 		this.productId = productId;

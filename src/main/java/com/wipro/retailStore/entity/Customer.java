@@ -12,19 +12,19 @@ public class Customer {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int custId;
+    private Long custId;
 	private String custName;
 	private String custEmail;
 	private int billingAddId;
 	private int shippingAddId;
 	
 	
-	public int getCustId() {
+	public Long getCustId() {
 		return custId;
 	}
 
 
-	public void setCustId(int custId) {
+	public void setCustId(Long custId) {
 		this.custId = custId;
 	}
 
@@ -75,7 +75,7 @@ public class Customer {
 	}
 
 
-	public Customer(int custId, String custName, String custEmail, int billingAddId, int shippingAddId) {
+	public Customer(Long custId, String custName, String custEmail, int billingAddId, int shippingAddId) {
 		super();
 		this.custId = custId;
 		this.custName = custName;

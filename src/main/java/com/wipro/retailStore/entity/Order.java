@@ -9,20 +9,27 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="order")
+@Table(name="orders")
 public class Order {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int orderId;
-	private List<Integer> lineItemId;
+    private long orderId;
+	private long custId;
+ 	private List<Integer> lineItemId;
 	
 	
 	
-	public int getOrderId() {
+	public long getCustId() {
+		return custId;
+	}
+	public void setCustId(long custId) {
+		this.custId = custId;
+	}
+	public long getOrderId() {
 		return orderId;
 	}
-	public void setOrderId(int orderId) {
+	public void setOrderId(long orderId) {
 		this.orderId = orderId;
 	}
 	public List<Integer> getLineItemId() {
@@ -31,9 +38,11 @@ public class Order {
 	public void setLineItemId(List<Integer> lineItemId) {
 		this.lineItemId = lineItemId;
 	}
-	public Order(int orderId, List<Integer> lineItemId) {
+	
+	public Order(long orderId, long custId, List<Integer> lineItemId) {
 		super();
 		this.orderId = orderId;
+		this.custId = custId;
 		this.lineItemId = lineItemId;
 	}
 	public Order() {
