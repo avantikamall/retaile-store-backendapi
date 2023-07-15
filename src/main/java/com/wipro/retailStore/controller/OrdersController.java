@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.wipro.retailStore.DTO.OrderDTO;
-import com.wipro.retailStore.entity.Order;
 import com.wipro.retailStore.entity.LineItem;
+import com.wipro.retailStore.entity.Orders;
 import com.wipro.retailStore.services.LineItemService;
 import com.wipro.retailStore.services.OrderService;
 
@@ -37,9 +37,9 @@ public class OrdersController {
 				itemId.add(l.getItemId());
 				item.add(l);
 			}
-			Order ac =new Order();
+			Orders ac =new Orders();
 			ac.setLineItemId(itemId);
-			Order cd = oservice.addOrder(ac);
+			Orders cd = oservice.addOrder(ac);
 			
 			OrderDTO result = new OrderDTO("Items added to the Order", cd.getOrderId(),item);
 			return ResponseEntity.status(HttpStatus.CREATED).body(result);

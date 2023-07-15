@@ -20,8 +20,8 @@ public class InventoryService {
 	}
 	
 	public Inventory getInventoryById(int invId) {
-		Inventory in = new Inventory(0,0,0);
-		return inventoryrepo.findById(invId).isPresent()?inventoryrepo.findById(invId).get():in;
+
+		return inventoryrepo.findById(invId).isPresent()?inventoryrepo.findById(invId).get():null;
 	}
 	public List<Inventory> getAllInventory(){
 		List<Inventory> invList = new ArrayList<>();

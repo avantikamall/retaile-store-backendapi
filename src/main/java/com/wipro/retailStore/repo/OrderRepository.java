@@ -2,10 +2,11 @@ package com.wipro.retailStore.repo;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.wipro.retailStore.entity.Order;
+import com.wipro.retailStore.entity.Orders;
 
-public interface OrderRepository extends JpaRepository<Order, Long>{
+public interface OrderRepository extends JpaRepository<Orders, Long>{
 	
-	Order findByCustId(long custId);
+	Orders findByCustId(long custId);
 
 }
+	

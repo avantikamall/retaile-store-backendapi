@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.wipro.retailStore.entity.Order;
+import com.wipro.retailStore.entity.Orders;
 import com.wipro.retailStore.repo.OrderRepository;
 
 @Service
@@ -15,25 +15,25 @@ public class OrderService {
 	@Autowired
 	OrderRepository orderRepo;
 	
-	public Order addOrder(Order order) {
+	public Orders addOrder(Orders order) {
 		return orderRepo.save(order);
 	}
 	
-	public Order searcOrder(long orderId) {
+	public Orders searcOrder(long orderId) {
 		return orderRepo.findById(orderId).isPresent()?orderRepo.findById(orderId).get():null;
 	}
 	
-	public Order searcOrderByCustId(long custId) {
+	public Orders searcOrderByCustId(long custId) {
 		return orderRepo.findByCustId(custId);
 	}
 	
-	public List<Order> getAllOrder(){
-		List<Order> orderList = new ArrayList<>();
+	public List<Orders> getAllOrder(){
+		List<Orders> orderList = new ArrayList<>();
 		orderRepo.findAll().forEach(ol->orderList.add(ol));
 		return orderList;
 	}
 	
-	public Order updateOrder(Order order) {
+	public Orders updateOrder(Orders order) {
 		if(orderRepo.findById(order.getOrderId()).isPresent()) {
 			return orderRepo.save(order);
 		}else {

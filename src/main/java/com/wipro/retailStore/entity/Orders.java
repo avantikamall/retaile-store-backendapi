@@ -10,7 +10,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name="orders")
-public class Order {
+public class Orders {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -39,13 +39,13 @@ public class Order {
 		this.lineItemId = lineItemId;
 	}
 	
-	public Order(long orderId, long custId, List<Integer> lineItemId) {
+	public Orders(long orderId, long custId, List<Integer> lineItemId) {
 		super();
 		this.orderId = orderId;
 		this.custId = custId;
 		this.lineItemId = lineItemId;
 	}
-	public Order() {
+	public Orders() {
 		super();
 		// TODO Auto-generated constructor stub
 	}

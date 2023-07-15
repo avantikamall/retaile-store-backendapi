@@ -29,8 +29,8 @@ public class ProductService {
 		return plist;
 	}
 	
-	public Product updateProduct(Product p) {
-		if(productrepo.findById(p.getProductId()).isPresent()) {
+	public Product updateProduct(int id ,Product p) {
+		if(productrepo.findById(id).isPresent()) {
 			return productrepo.save(p);
 		}else {
 			return null;

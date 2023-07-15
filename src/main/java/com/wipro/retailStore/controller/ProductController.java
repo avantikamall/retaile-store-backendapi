@@ -52,12 +52,14 @@ public class ProductController {
 	}
 	
 	@PutMapping("/products/{id}")
-	public ResponseEntity<Product> updateProduct(@PathVariable("id") int pId, Product p){
+	public ResponseEntity<Product> updateProduct(@PathVariable("id") int pId, @RequestBody Product p){
 		try {
 			Product pr = pservice.searchProduct(pId);
 			if(pr!=null) {
-				Product up = new Product(pr.getProductId(), pr.getProductName(),p.getProductDescription(),p.getProductPrice());
-				return ResponseEntity.status(200).body(up);
+				Product up = new Product(pr.getProductId(), p.getProductName(),p.getProductDescription(),p.getProductPrice());
+				Product result = pservice.updateProduct(pId,up);
+				
+				return ResponseEntity.status(200).body(result);
 			}else {
 				return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 			}
@@ -67,11 +69,12 @@ public class ProductController {
 	}
 	
 	@DeleteMapping("/products/{id}")
-	public ResponseEntity<String> deleteProduct(@PathVariable("{id}")int pId){
+	public ResponseEntity<String> deleteProduct(@PathVariable("id")int pId){
 		
 		try {
+			String s =pservice.deleteProduct(pId);
 			
-			return ResponseEntity.status(200).body(pservice.deleteProduct(pId));
+			return ResponseEntity.status(200).body(s);
 		}catch(Exception e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
 		}

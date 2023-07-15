@@ -117,6 +117,7 @@ public class CustomerController {
 	public String deleteCustomer(@PathVariable("id") long id) {
 		try {
 			Customer c = custservice.getCustById(id);
+			if(c!=null) {
 			if(c.getBillingAddId()==c.getShippingAddId()) {
 
 				custaddservice.deleteAddress(c.getBillingAddId());
@@ -126,7 +127,11 @@ public class CustomerController {
 			custaddservice.deleteAddress(c.getBillingAddId());
 			custaddservice.deleteAddress(c.getShippingAddId());
 			}
-			return custservice.deleteCustomer(id);
+			custservice.deleteCustomer(id);
+			return "Deleted Successfully!";
+			}else {
+				return "Customer does not exist!!";
+			}
 		}catch(Exception e) {
 			return e.getMessage();
 		}

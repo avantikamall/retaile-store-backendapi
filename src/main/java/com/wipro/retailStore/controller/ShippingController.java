@@ -21,7 +21,7 @@ import com.wipro.retailStore.entity.Customer;
 import com.wipro.retailStore.entity.CustomerAddress;
 import com.wipro.retailStore.entity.Inventory;
 import com.wipro.retailStore.entity.LineItem;
-import com.wipro.retailStore.entity.Order;
+import com.wipro.retailStore.entity.Orders;
 import com.wipro.retailStore.entity.Product;
 import com.wipro.retailStore.mapping.CustCartMapping;
 import com.wipro.retailStore.mapping.OrderCustomer;
@@ -58,6 +58,7 @@ public class ShippingController {
 	
 	@Autowired
 	OrderService oservcie;
+	
 	
 	
 	@PostMapping("/products")
@@ -125,16 +126,25 @@ public class ShippingController {
 	}
 	
 	@PutMapping("/customer/{cid}/cart")
-	public ResponseEntity<Cart> putlineitem(@PathVariable("id") long cid,@RequestBody List<LineItem> l){
+	public ResponseEntity<Cart> putlineitem(@PathVariable("cid") long cid,@RequestBody List<LineItem> l){
 		Cart c = cartservice.searchCartbycustId(cid);
-		
-		List<Integer> lid = new ArrayList<>();
-		for(int i=0; i<l.size(); i++) {
-			LineItem l2 = lservice.additem(l.get(i));
-			lid.add(l2.getItemId());
+		if(c!=null) {
+			List<Integer> lid = new ArrayList<>();
+			for(int i=0; i<l.size(); i++) {
+				LineItem l2 = lservice.additem(l.get(i));
+				lid.add(l2.getItemId());
+			}
+			
+			
+			Cart newcart = new Cart(c.getCartId(), cid, lid);
+			Cart update = cartservice.updateCart(newcart);
+			
+			return ResponseEntity.status(200).body(update);
+			
+		}else {
+			return ResponseEntity.status(200).body(null);
 		}
-		Cart newcart = new Cart(c.getCartId(), cid, lid);
-		return ResponseEntity.status(200).body(newcart);
+		
 		
 	}
 	
@@ -155,11 +165,11 @@ public class ShippingController {
 			
 			cartservice.emptyCart(cartId);
 			
-			Order ord = new Order();
+			Orders ord = new Orders();
 			ord.setCustId(cId);
 			ord.setLineItemId(l1);
 			
-			Order order = oservcie.addOrder(ord);
+			Orders order = oservcie.addOrder(ord);
 			
 			OrderCustomer result = new OrderCustomer("Order Created!",order.getOrderId(), order.getCustId());
 			return ResponseEntity.status(200).body(result);
@@ -171,7 +181,7 @@ public class ShippingController {
 	
 	
 	@GetMapping("/customer/{id}/orders")
-	public Order allOrder(@PathVariable("id") long id) {
+	public Orders allOrder(@PathVariable("id") long id) {
 		return oservcie.searcOrderByCustId(id);
 	}
 }

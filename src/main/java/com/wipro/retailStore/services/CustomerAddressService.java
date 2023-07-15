@@ -22,8 +22,8 @@ public class CustomerAddressService {
 	}
 	
 	public CustomerAddress getAddressById (int addressId) {
-		CustomerAddress c = new CustomerAddress(0,null,null,null,null,0);
-		return custAddrepo.findById(addressId).isPresent()?custAddrepo.findById(addressId).get():c;
+		
+		return custAddrepo.findById(addressId).isPresent()?custAddrepo.findById(addressId).get():null;
 	}
 	
 	public List<CustomerAddress> getAllAddress(){
