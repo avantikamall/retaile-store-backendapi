@@ -6,4 +6,5 @@ import com.wipro.retailStore.entity.Inventory;
 
 public interface InventoryRepository extends JpaRepository<Inventory, Integer>{
 
+	Inventory findByProductId(int productId);
 }

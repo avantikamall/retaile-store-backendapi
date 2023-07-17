@@ -23,6 +23,11 @@ public class InventoryService {
 
 		return inventoryrepo.findById(invId).isPresent()?inventoryrepo.findById(invId).get():null;
 	}
+	
+	public Inventory getInventoryByProductId(int productId) {
+		return inventoryrepo.findByProductId(productId);
+	}
+	
 	public List<Inventory> getAllInventory(){
 		List<Inventory> invList = new ArrayList<>();
 		inventoryrepo.findAll().forEach(inv->invList.add(inv));

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.wipro.retailStore.DTO.CustomerDTO;
 import com.wipro.retailStore.DTO.InventoryDTO;
+import com.wipro.retailStore.DTO.OrderDTO;
 import com.wipro.retailStore.entity.Cart;
 import com.wipro.retailStore.entity.Customer;
 import com.wipro.retailStore.entity.CustomerAddress;
@@ -24,6 +25,7 @@ import com.wipro.retailStore.entity.LineItem;
 import com.wipro.retailStore.entity.Orders;
 import com.wipro.retailStore.entity.Product;
 import com.wipro.retailStore.mapping.CustCartMapping;
+import com.wipro.retailStore.mapping.CustomerOrderDetails;
 import com.wipro.retailStore.mapping.OrderCustomer;
 import com.wipro.retailStore.mapping.ProductInventoryMapping;
 import com.wipro.retailStore.services.CartService;
@@ -127,24 +129,46 @@ public class ShippingController {
 	
 	@PutMapping("/customer/{cid}/cart")
 	public ResponseEntity<Cart> putlineitem(@PathVariable("cid") long cid,@RequestBody List<LineItem> l){
-		Cart c = cartservice.searchCartbycustId(cid);
-		if(c!=null) {
+		try {
+		if(cartservice.searchCartbycustId(cid)!=null) {
+			Cart c= cartservice.searchCartbycustId(cid);
 			List<Integer> lid = new ArrayList<>();
-			for(int i=0; i<l.size(); i++) {
-				LineItem l2 = lservice.additem(l.get(i));
-				lid.add(l2.getItemId());
+			if(c.getLineItemId()!=null) {
+				
+				lid.addAll(c.getLineItemId());
 			}
-			
+			for(int i=0; i<l.size(); i++) {
+				
+				Inventory inv = iservice.getInventoryByProductId(l.get(i).getProductId());
+				if(l.get(i).getQuantity()<= inv.getQuantity()) {
+					Product p = pservice.searchProduct(l.get(i).getProductId());
+					LineItem newItem = new LineItem();
+					newItem.setPrice(p.getProductPrice());
+					newItem.setProductId(l.get(i).getProductId());
+					newItem.setProductName(l.get(i).getProductName());
+					newItem.setQuantity(l.get(i).getQuantity());
+					
+					LineItem l2 = lservice.additem(newItem);
+					
+					lid.add(l2.getItemId());
+					
+				}else {
+					System.out.println("Out of Stock!!");
+				}
+			}
 			
 			Cart newcart = new Cart(c.getCartId(), cid, lid);
 			Cart update = cartservice.updateCart(newcart);
-			
+			System.out.println(update.getLineItemId());
 			return ResponseEntity.status(200).body(update);
 			
 		}else {
-			return ResponseEntity.status(200).body(null);
+			return ResponseEntity.status(204).body(null);
 		}
-		
+		}catch(Exception e) {
+			
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+		}
 		
 	}
 	
@@ -152,36 +176,77 @@ public class ShippingController {
 	
 	@PostMapping("/customer/{id}/order")
 	public ResponseEntity<OrderCustomer> makeorder(@PathVariable("id") long cId){
-		int cartId;
+
 		if(cartservice.searchCartbycustId(cId) != null) {
 			Cart c = cartservice.searchCartbycustId(cId);
-			cartId = c.getCartId();
-			List<Integer> l1 = new ArrayList<>();
-			for(int i=0; i<l1.size(); i++) {
+			System.out.println(c);
+			if(c.getLineItemId()!=null) {
 				
-				int l =	cartservice.searchCart(cartId).getLineItemId().get(i);
-				l1.add(l);
-			}
+				List<Integer> l1 = c.getLineItemId();
 			
-			cartservice.emptyCart(cartId);
+			
+			for(int j=0; j<l1.size(); j++) {
+			   	LineItem itemqty = lservice.searchItem(l1.get(j));
+			   	int productid = itemqty.getProductId();
+			   	Inventory inv = iservice.getInventoryByProductId(productid);
+			   	int invq = inv.getQuantity()-itemqty.getQuantity();
+				Inventory nInv = new Inventory();
+				nInv.setInventoryId(inv.getInventoryId());
+				nInv.setProductId(inv.getProductId());
+				nInv.setQuantity(invq);
+				iservice.updateInventory(nInv);
+			}
 			
 			Orders ord = new Orders();
 			ord.setCustId(cId);
 			ord.setLineItemId(l1);
 			
 			Orders order = oservcie.addOrder(ord);
+			cartservice.emptyCart(c.getCartId());
 			
 			OrderCustomer result = new OrderCustomer("Order Created!",order.getOrderId(), order.getCustId());
 			return ResponseEntity.status(200).body(result);
+			}
+			else {
+				OrderCustomer result = new OrderCustomer();
+				result.setMessage("Cart is empty!");
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
+			}
 		}
 		else {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+			OrderCustomer result = new OrderCustomer();
+			result.setMessage("Cart is not tagged to the customer!!");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
 		}
 	}
 	
 	
 	@GetMapping("/customer/{id}/orders")
-	public Orders allOrder(@PathVariable("id") long id) {
-		return oservcie.searcOrderByCustId(id);
+	public ResponseEntity<CustomerOrderDetails> allOrder(@PathVariable("id") long id) {
+		try {
+			
+		Customer cust = cservice.getCustById(id);
+		Orders od = oservcie.searcOrderByCustId(id);
+		List<LineItem> items = new ArrayList<>();
+		if(od.getLineItemId()!=null) {
+			List<Integer> itemId = od.getLineItemId();
+			for(int i=0; i<itemId.size(); i++) {
+				LineItem item = lservice.searchItem(itemId.get(i));
+				items.add(item);
+			}
+		}
+		
+		CustomerAddress ba = caddservcie.getAddressById(cust.getBillingAddId());
+		CustomerAddress sa = caddservcie.getAddressById(cust.getShippingAddId());
+		
+		CustomerDTO cdto = new CustomerDTO("Customer Details",id,cust.getCustName(),cust.getCustEmail(),ba,sa);
+		OrderDTO odto = new OrderDTO("Orders Details",od.getOrderId(),items);
+		
+		CustomerOrderDetails result = new CustomerOrderDetails("Customer Details With Order", cdto,odto);
+		return ResponseEntity.status(HttpStatus.OK).body(result);
+		}catch(Exception e) {
+			CustomerOrderDetails exc = new CustomerOrderDetails("Not Found!!",  null, null);
+			return ResponseEntity.status(HttpStatus.OK).body(exc);
+		}
 	}
 }
